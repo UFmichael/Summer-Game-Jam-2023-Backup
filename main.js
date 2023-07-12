@@ -8,23 +8,54 @@ var mainParticleSize = 25
 
 var mass_doc, energy_doc, velocity_doc
 
+var particleData = {
+    alpha: {
+        color: "#ffff00",
+        size: 10,
+        mass: 1
+    },
+    beta: {
+        color: "#00ff00",
+        size: 12,
+        mass: 5
+    },
+    gamma: {
+        color: "#ff00ff",
+        size: 15,
+        mass: 30
+    }
+}
+
 var resources = {
     mass: 0,
     velocity: 0,
-    alpha_particles: 0,
-    avail_alpha_particles: 0
+    alpha: 0,
+    beta: 0,
+    gamma: 0,
 }
 
-var cost_quant = {
-    vel_quant: 0,
-    u1_quant: 0
+var activeParticles = {
+    alpha: 0,
+    beta: 0,
+    gamma: 0,
 }
 
-var cost_data = {
-    _vel: () => 50 * Math.pow(5, cost_quant.vel_quant),
+var costQuant = {
+    vel: 0,
+    u1: 0,
+    u2: 0,
+    u3: 0
+}
+
+var costData = {
+    _u1: () => 10 * Math.pow(1.1, costQuant.u1),
+    u1: 10,
+    _u2: () => 80 * Math.pow(1.13, costQuant.u2),
+    u2: 80,
+    _u3: () => 200 * Math.pow(1.17, costQuant.u2),
+    u3: 200,
+    _vel: () => 50 * Math.pow(5, costQuant.vel),
     vel: 50,
-    _u1: () => 10 * Math.pow(1.1, cost_quant.u1_quant),
-    u1: 10
 }
 
 var kineticEnergy = (mass, velocity) => 0.5 * mass * velocity * velocity;
@@ -55,8 +86,9 @@ window.onload = function() {
     energy_doc = document.getElementById("energy")
     velocity_doc = document.getElementById("velocity")
 
-    document.getElementById("particle1_upgrade").innerHTML = "Alpha Particles<br>(0)<br>" +cost_data.u1+ " J / ∞ kg"
-    document.getElementById("velocity_upgrade").innerHTML = "Increase velocity<br>1 m/s<br>"+cost_data.vel + " kg";
+    updateButtonText()
+
+    document.getElementById("velocity_upgrade").innerHTML = "Increase velocity<br>1 m/s<br>"+costData.vel + " kg";
 
     mainParticle.style.width = mainParticleSize + "px";
     mainParticle.style.height = mainParticleSize + "px";
@@ -122,17 +154,9 @@ function updateDisplayBoard(deltaTime) {
 
     removeAfter = []
 
-    var min = Math.min(resources.alpha_particles - resources.avail_alpha_particles, 10)
-
-    for (var i = 0; i < min; i++) {
-        var part = createParticle("#ffff00", 10, 1)
-
-        display.appendChild(part)
-        
-        particlesToDrift.push(part)
-    }
-
-    resources.avail_alpha_particles += min
+    createParticlesIfAvailable("alpha")
+    createParticlesIfAvailable("beta")
+    createParticlesIfAvailable("gamma")
 
     var diff = 100*getComputedStyle(mainParticle).width.replace("px", "")/displayData.width.replace("px", "")
 
@@ -151,7 +175,11 @@ function updateDisplayBoard(deltaTime) {
         } else if (x0 < 0) {
             removeAfter.push(particle)
         } else {
-            particle.style.left = (-50*collisionSpeed*resources.velocity * deltaTime/displayData.width.replace("px", "") + x0) + "%"
+            while (particle.velocity/0.95 < resources.velocity) {
+                particle.velocity += 1
+            }
+            
+            particle.style.left = (-50*collisionSpeed*particle.velocity * deltaTime/displayData.width.replace("px", "") + x0) + "%"
             
             particle.hidden = !(x0 > 0 && x0 < 100-100*particle.style.width.replace("px", "")/displayData.width.replace("px", ""));
         }
@@ -159,8 +187,8 @@ function updateDisplayBoard(deltaTime) {
 
     for (var i = 0; i < removeAfter.length; i++) {
         var del = particlesToDrift.splice(particlesToDrift.indexOf(removeAfter[i]), 1)
+        activeParticles[del[0].name]--
         discardElement(del[0])
-        resources.avail_alpha_particles--
     }
 
     var mult = Math.sqrt(Math.log(resources.mass)/Math.log(10) + 1)
@@ -185,30 +213,49 @@ function onClick(event) {
 
         particlesToCollide.push(part)
     } else if (id == "velocity_upgrade") {
-        if (resources.mass >= cost_data.vel) {
-            resources.mass -= cost_data.vel;
+        if (resources.mass >= costData.vel) {
+            resources.mass -= costData.vel;
             resources.velocity++
-            cost_quant.vel_quant++
-            cost_data.vel = cost_data._vel()
-            document.getElementById("velocity_upgrade").innerHTML = "Increase velocity<br>1 m/s<br>"+cost_data.vel + " kg";
+            costQuant.vel++
+            costData.vel = costData._vel()
+            document.getElementById("velocity_upgrade").innerHTML = "Increase velocity<br>1 m/s<br>"+costData.vel + " kg";
         }
-    } else if (id == "particle1_upgrade") {
-        if (energy(resources.mass, resources.velocity) >= cost_data.u1) {
-            resources.mass -= invKineticEnergy(cost_data.u1, resources.velocity)
-            resources.alpha_particles++
-            cost_quant.u1_quant++
-            cost_data.u1 = cost_data._u1()
+    } else if (id.slice(0, 16) == "particle_upgrade") {
+        let names = Object.keys(particleData)
+        let costs = Object.values(costData)
+
+        let i = parseInt(id.slice(16))-1
+        
+        if (energy(resources.mass, resources.velocity) >= costs[2*i+1]) {
+            resources.mass -= invKineticEnergy(costs[2*i+1], resources.velocity)
+            resources[names[i]]++
+            costQuant["u" + (i+1)]++
+            costData["u" + (i+1)] = costData["_u" + (i+1)]()
         }
     }
 
-    var cost = Math.ceil(100*cost_data.u1)/100
+    updateButtonText()
+}
 
-    var massCost = Math.ceil(100*invKineticEnergy(cost, resources.velocity))/100
+function updateButtonText() {
+    let updateMassCost = true
+    let massCost = "∞"
+    let names = Object.keys(particleData)
+    let costs = Object.values(costData)
 
-    if (massCost == "Infinity")
-        massCost = "∞"
+    if (resources.velocity == 0)
+        updateMassCost = false
+    
+    for (var i = 0; i < names.length; i++) {
+        let cost = ceil(costs[2*i + 1], 100)
+        let name = names[i]
 
-    document.getElementById("particle1_upgrade").innerHTML = "Alpha Particles<br>("+resources.alpha_particles+")<br>" +cost+ " J / " + massCost + " kg"
+        if (updateMassCost) {
+            massCost = ceil(invKineticEnergy(cost, resources.velocity), 100)
+        }
+
+        document.getElementById("particle_upgrade" + (i+1)).innerHTML = name.charAt(0).toUpperCase() + name.slice(1) + " Particles<br>("+resources[name]+")<br>" +cost+ " J / " + massCost + " kg"
+    }
 }
 
 function createManualParticle(color, size, mass) {
@@ -219,7 +266,7 @@ function createManualParticle(color, size, mass) {
 
     div.style.position = "absolute"
     div.style.left = side ? (-Math.ceil(100*size/getComputedStyle(display).width.replace("px", ""))) + "%" : "100%"
-    div.style.top = (angle-size/getComputedStyle(display).height.replace("px", ""))+"%"
+    div.style.top = (angle-2*size/getComputedStyle(display).height.replace("px", ""))+"%"
     div.style.width = size + "px"
     div.style.height = size + "px"
     div.style.borderRadius = "50%"
@@ -238,7 +285,7 @@ function createParticle(color, size, mass) {
 
     div.style.position = "absolute"
     div.style.left = "100%"
-    div.style.top = (angle-size/getComputedStyle(display).height.replace("px", ""))+"%"
+    div.style.top = (angle-2*size/getComputedStyle(display).height.replace("px", ""))+"%"
     div.style.width = size + "px"
     div.style.height = size + "px"
     div.style.borderRadius = "50%"
@@ -248,6 +295,25 @@ function createParticle(color, size, mass) {
     div.mass = mass
     
     return div
+}
+
+function createParticlesIfAvailable(name) {
+    var min = Math.min(resources[name] - activeParticles[name], 10)
+
+    var data = particleData[name]
+
+    for (var i = 0; i < min; i++) {
+        var part = createParticle(data.color, data.size, data.mass)
+
+        part.velocity = resources.velocity * (0.95 + Math.random()/10)
+        part.name = name
+
+        display.appendChild(part)
+        
+        particlesToDrift.push(part)
+    }
+
+    activeParticles[name] += min
 }
 
 function loop(timestamp) {
@@ -273,6 +339,10 @@ function getPosition(ele) {
 
 function round(number, whichPlace) {
     return Math.round(number*whichPlace)/whichPlace
+}
+
+function ceil(number, whichPlace) {
+    return Math.ceil(number*whichPlace)/whichPlace
 }
   
 window.requestAnimationFrame(loop)

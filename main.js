@@ -12,18 +12,44 @@ var particleData = {
     alpha: {
         color: "#ffff00",
         size: 10,
-        mass: 1
+        mass: 1,
+        symbol: "α",
     },
     beta: {
         color: "#00ff00",
         size: 12,
-        mass: 5
+        mass: 10,
+        symbol: "β",
     },
     gamma: {
         color: "#ff00ff",
         size: 15,
-        mass: 30
+        mass: 50,
+        symbol: "γ",
+    },
+    delta: {
+        color: " #a6ff00",
+        size: 16,
+        mass: 100,
+        symbol: "δ",
     }
+}
+
+var milestoneData = {
+    vel1: {
+        bought: false,
+        cost: 50,
+        unlockCost: 50,
+        unit: "kg",
+        resource: "mass",
+    },
+    alpha1: {
+        bought: false,
+        cost: 30,
+        unlockCost: 10,
+        unit: "Alpha Particles",
+        resource: "alpha",
+    },
 }
 
 var resources = {
@@ -32,34 +58,36 @@ var resources = {
     alpha: 0,
     beta: 0,
     gamma: 0,
+    delta: 0,
 }
 
 var activeParticles = {
     alpha: 0,
     beta: 0,
     gamma: 0,
+    delta: 0,
 }
 
 var costQuant = {
-    vel: 0,
     u1: 0,
     u2: 0,
-    u3: 0
+    u3: 0,
+    u4: 0,
 }
 
 var costData = {
     _u1: () => 10 * Math.pow(1.1, costQuant.u1),
     u1: 10,
-    _u2: () => 80 * Math.pow(1.13, costQuant.u2),
+    _u2: () => 80 * Math.pow(1.12, costQuant.u2),
     u2: 80,
-    _u3: () => 200 * Math.pow(1.17, costQuant.u2),
+    _u3: () => 200 * Math.pow(1.15, costQuant.u3),
     u3: 200,
-    _vel: () => 50 * Math.pow(5, costQuant.vel),
-    vel: 50,
+    _u4: () => 1000 * Math.pow(1.19, costQuant.u4),
+    u4: 1000,
 }
 
-var kineticEnergy = (mass, velocity) => 0.5 * mass * velocity * velocity;
-var invKineticEnergy = (energyInput, velocity) => 2*energyInput/(velocity*velocity); 
+var kineticEnergy = (mass=resources.mass, velocity=resources.velocity) => 0.5 * mass * velocity * velocity;
+var invKineticEnergy = (energyInput, velocity=resources.velocity) => 2*energyInput/(velocity*velocity); 
 
 var restEnergy = (mass, c) => mass * c * c;
 
@@ -69,6 +97,11 @@ var particlesToCollide = []
 var particlesToDrift = []
 
 var garbageBin;
+
+var allParticles;
+
+var allMilestones;
+var buyableMilestones;
 
 window.onload = function() {
     const clickableElements = document.getElementsByClassName("clickable")
@@ -86,27 +119,27 @@ window.onload = function() {
     energy_doc = document.getElementById("energy")
     velocity_doc = document.getElementById("velocity")
 
-    updateButtonText()
+    allParticles = Object.keys(particleData)
+    allMilestones = Object.keys(milestoneData)
+    buyableMilestones = Object.keys(milestoneData)
 
-    document.getElementById("velocity_upgrade").innerHTML = "Increase velocity<br>1 m/s<br>"+costData.vel + " kg";
+    updateButtonText()
 
     mainParticle.style.width = mainParticleSize + "px";
     mainParticle.style.height = mainParticleSize + "px";
 
-    if (typeof(garbageBin) === 'undefined')
-        {
+    if (typeof(garbageBin) === 'undefined') {
         garbageBin = document.createElement('div');
         garbageBin.style.display = 'none';
         document.body.appendChild(garbageBin);
-        }
+    }
 }
 
-function discardElement(element)
-        {
-        garbageBin.appendChild(element);
+function discardElement(element) {
+    garbageBin.appendChild(element);
 
-        garbageBin.innerHTML = "";
-        }
+    garbageBin.innerHTML = "";
+}
 
 function update(deltaTime) {
     updateDisplayBoard(deltaTime);
@@ -117,6 +150,9 @@ function numberUpdates(deltaTime) {
     mass_doc.innerHTML = "Mass: " + round(resources.mass, 100) + " kg"
     energy_doc.innerHTML = "Energy: " + round(energy(resources.mass, resources.velocity), 100) + " J"
     velocity_doc.innerHTML = "Velocity: " + round(resources.velocity, 100) + " m/s"
+
+    unlockMilestones("mass")
+    unlockMilestones("alpha")
 }
 
 function updateDisplayBoard(deltaTime) {
@@ -154,9 +190,7 @@ function updateDisplayBoard(deltaTime) {
 
     removeAfter = []
 
-    createParticlesIfAvailable("alpha")
-    createParticlesIfAvailable("beta")
-    createParticlesIfAvailable("gamma")
+    createParticlesIfAvailable()
 
     var diff = 100*getComputedStyle(mainParticle).width.replace("px", "")/displayData.width.replace("px", "")
 
@@ -172,6 +206,7 @@ function updateDisplayBoard(deltaTime) {
         if (y0 <= 50 + diff && y0 >= 50 - diff && x0 <= 50) {
             removeAfter.push(particle)
             resources.mass += particle.mass
+            console.log(particle.mass)
         } else if (x0 < 0) {
             removeAfter.push(particle)
         } else {
@@ -193,7 +228,7 @@ function updateDisplayBoard(deltaTime) {
 
     var mult = Math.sqrt(Math.log(resources.mass)/Math.log(10) + 1)
 
-    if (true) {
+    if (mult > 1) {
         mainParticle.style.width = mainParticleSize * mult + "px";
         mainParticle.style.height = mainParticleSize * mult + "px";
     }
@@ -205,21 +240,14 @@ function draw() {
 
 function onClick(event) {
     var id = event.currentTarget.id
+    var cls = event.currentTarget.classList
 
     if (id == "main_particle") {
-        var part = createManualParticle("#ffff00", 10, 1)
-
+        var part = createManualParticle("#ffffff", 10, 1)
+        
         display.appendChild(part)
 
         particlesToCollide.push(part)
-    } else if (id == "velocity_upgrade") {
-        if (resources.mass >= costData.vel) {
-            resources.mass -= costData.vel;
-            resources.velocity++
-            costQuant.vel++
-            costData.vel = costData._vel()
-            document.getElementById("velocity_upgrade").innerHTML = "Increase velocity<br>1 m/s<br>"+costData.vel + " kg";
-        }
     } else if (id.slice(0, 16) == "particle_upgrade") {
         let names = Object.keys(particleData)
         let costs = Object.values(costData)
@@ -232,26 +260,85 @@ function onClick(event) {
             costQuant["u" + (i+1)]++
             costData["u" + (i+1)] = costData["_u" + (i+1)]()
         }
+    } else if (cls[1] == "milestone_button") {
+        milestoneUpgrade(id)
     }
 
     updateButtonText()
 }
 
+function milestoneUpgrade(id) {
+    let data = milestoneData[id]
+    let resource = data.resource
+
+    if (resource == "energy" && energy() >= data.cost) {
+        resources["mass"] -= invKineticEnergy(data.cost)
+    }
+    else if (resources[resource] >= data.cost) {
+        resources[resource] -= data.cost
+    }
+    else {
+        return;
+    }
+
+    data.bought = true
+    buyableMilestones.splice(buyableMilestones.indexOf(id), 1)
+
+    document.getElementById(id).hidden = true
+
+    if (id == "vel1") {
+        resources.velocity++
+    }
+    else if (id == "alpha1") {
+        particleData.alpha.mass *= 2
+    }
+}
+
+function getMilestoneHoverer(id) {
+    return document.getElementById(id + "_")
+}
+
+function unlockMilestones(resource) {
+    var size = buyableMilestones.length
+
+    for (var i = 0; i < size; i++) {
+        let name = buyableMilestones[i]
+
+        let data = milestoneData[name]
+        
+        if (data.resource == resource && ((resource == "energy" && energy() >= data.unlockCost) || resources[resource] >= data.unlockCost)) {
+            document.getElementById(name).hidden = false
+        }
+    }
+}
+
+function updateMilestoneDisplay(elm) {
+    let id = elm.id
+
+    let name = id.slice(0, -1)
+    let data = milestoneData[name]
+
+    if (!("length" in elm)) {
+        elm.length = elm.innerHTML.length
+    }
+
+    elm.innerHTML = elm.innerHTML.slice(0, elm.length) + "Cost: " + numDisplay(data.cost) + " " + data.unit
+}
+
 function updateButtonText() {
     let updateMassCost = true
     let massCost = "∞"
-    let names = Object.keys(particleData)
     let costs = Object.values(costData)
 
     if (resources.velocity == 0)
         updateMassCost = false
     
-    for (var i = 0; i < names.length; i++) {
-        let cost = ceil(costs[2*i + 1], 100)
-        let name = names[i]
+    for (var i = 0; i < allParticles.length; i++) {
+        let cost = numDisplay(costs[2*i+1])
+        let name = allParticles[i]
 
         if (updateMassCost) {
-            massCost = ceil(invKineticEnergy(cost, resources.velocity), 100)
+            massCost = numDisplay(invKineticEnergy(cost, resources.velocity))
         }
 
         document.getElementById("particle_upgrade" + (i+1)).innerHTML = name.charAt(0).toUpperCase() + name.slice(1) + " Particles<br>("+resources[name]+")<br>" +cost+ " J / " + massCost + " kg"
@@ -297,23 +384,27 @@ function createParticle(color, size, mass) {
     return div
 }
 
-function createParticlesIfAvailable(name) {
-    var min = Math.min(resources[name] - activeParticles[name], 10)
-
-    var data = particleData[name]
-
-    for (var i = 0; i < min; i++) {
-        var part = createParticle(data.color, data.size, data.mass)
-
-        part.velocity = resources.velocity * (0.95 + Math.random()/10)
-        part.name = name
-
-        display.appendChild(part)
+function createParticlesIfAvailable() {
+    for (var j = 0; j < allParticles.length; j++) {
+        var name = allParticles[j]
         
-        particlesToDrift.push(part)
-    }
+        var min = Math.min(resources[name] - activeParticles[name], 10)
 
-    activeParticles[name] += min
+        var data = particleData[name]
+
+        for (var i = 0; i < min; i++) {
+            var part = createParticle(data.color, data.size, data.mass)
+
+            part.velocity = resources.velocity * (0.95 + Math.random()/10)
+            part.name = name
+
+            display.appendChild(part)
+            
+            particlesToDrift.push(part)
+        }
+
+        activeParticles[name] += min
+    }
 }
 
 function loop(timestamp) {
@@ -344,5 +435,31 @@ function round(number, whichPlace) {
 function ceil(number, whichPlace) {
     return Math.ceil(number*whichPlace)/whichPlace
 }
-  
+
+function toExp(number, digits) {
+    return number.toExponential(digits)
+}
+
+function numDisplay(number) {
+    if (number < 10000)
+        return ceil(number, 100);
+    else
+        return toExp(number, 2);
+}
+
+function hoverdiv(e){
+
+    var left  = e.clientX  + "px";
+    var top  = e.clientY  + "px";
+
+    var div = document.getElementById(e.currentTarget.id +"_");
+
+    updateMilestoneDisplay(div)
+
+    div.style.left = left;
+    div.style.top = top;
+
+    return false;
+}
+
 window.requestAnimationFrame(loop)

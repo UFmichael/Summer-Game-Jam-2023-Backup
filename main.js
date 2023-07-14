@@ -87,6 +87,13 @@ var milestoneData = {
     },
 }
 
+const milestoneFunctions = {
+    vel1: () => resources.velocity++,
+    alpha1: () => particleData.alpha.mass *= 2,
+    click1: () => clickParticleMass *= 2,
+    vel2: () => resources.velocity++,
+}
+
 var resources = {
     mass: 0,
     velocity: 0,
@@ -403,15 +410,7 @@ function milestoneUpgrade(id) {
     document.getElementById(id).hidden = true
     checkUnlockAllMilestones()
 
-    if (id == "vel1") {
-        resources.velocity++
-    }
-    else if (id == "alpha1") {
-        particleData.alpha.mass *= 2
-    }
-    else if (id == "click1") {
-        clickParticleMass *= 2
-    }
+    milestoneFunctions[id]()
 }
 
 function getMilestoneHoverer(id) {

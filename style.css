@@ -1,22 +1,116 @@
-.particle_display {
-    height:400px;
-    width:700px;
+.container {  display: grid;
+    position: relative;
+    grid-template-columns: 6.3fr 5fr 3.2fr 6.7fr 2.7fr;
+    grid-template-rows: 0.5fr 0.6fr 0.6fr 0.7fr 3.1fr 0.8fr;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 8px 8px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "title resources resources c c"
+      "title resources resources energy_display energy_display"
+      "particle_display resources resources energy_display energy_display"
+      "particle_display particle_shop milestone_upgrades milestone_upgrades settings"
+      "particle_display particle_shop relativity relativity settings"
+      "b_border b_border b_border b_border b_border";
+  }
+  
+  #c { grid-area: c; 
+    background-color: #b8c78e;
+    border: 8px groove #869167;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4vmin; 
+    font-family:'Courier New', Courier, monospace;
+}
+  
+  .title { grid-area: title; 
+    background-color: #5fb7ff;
+    border: 8px groove #417dad;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5vmin; 
+    font-family:'Courier New', Courier, monospace;
+}
+  
+  .resources { grid-area: resources; 
+    background-color: #545894;
+    border: 8px groove #484b81;
+}
+  
+  .energy_display { grid-area: energy_display; 
+    background-color: #545894;
+    border: 8px groove #484b81;
+}
+  
+  .settings { grid-area: settings; 
+    background-color: #545894;
+    border: 8px groove #484b81;
+}
+  
+  #particle_shop { grid-area: particle_shop; 
+    background-color: #545894;
+    border: 8px groove #484b81;
+    display:grid;
+    grid-auto-columns: 1fr;
+    overflow: scroll;
+  }
+  
+  .relativity { grid-area: relativity; 
+    background-color: #ff5429;
+    border: 8px groove #943017;
+}
+  
+  .b_border { grid-area: b_border; 
+    background-color: #545894;
+    border: 8px groove #484b81;
+}
+
+  html, body , .container {
+    height: 100%;
+    margin: 0;
+    background-color:#111529;
+  }
+
+  html {
+    min-width: 1920px;
+    min-height: 1080px;
+  }
+
+#particle_display {
+    background:rgb(0, 0, 0);
+    border-radius: 5px;
+    grid-area: particle_display;
+    width: 670px;
+}
+#energy_display {
+    height:200px;
+    width:500px;
     background:rgb(0, 0, 0);
     position:relative;
-    margin-left: auto;
     margin-right: auto;
     border-radius: 5px;
+    display:inline-block;
 }
 .dot {
     transform-origin: top left;
     transform: translate(-50%, -50%);
-    position: absolute;
     left: 50%;
     top: 50%;
     background-color: #ffffff;
     border-radius: 50%;
     box-shadow: 0 0 25px 5px #fff;
     z-index: 1;
+    position: relative;
+}
+.particle {
+    transform-origin: top left;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    position: absolute;
+    grid-area: particle_display;
 }
 .particle_shop_button {
     border: 0;
@@ -25,27 +119,20 @@
     font-size: 1rem;
     text-align: center;
     line-height: 20px;
-    margin-left: 100%;
-    float: right;
+    margin-left: 0%;
     color: #474747;
     text-shadow: 1px 1px 1px #000;
+    min-height: 150px;
     border-radius: 4px;
     box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.6), inset -2px -2px;
-    height: 70px;
-    width: 200px;
     transform-origin: 100;
 }
 #milestone_upgrades {
     overflow:auto;
-    width:650px;
-    height:80px;
-    margin-top: 5px;
     background-color: hwb(34 38% 25%);
     border:8px solid hwb(34 26% 41%);
     box-shadow: 2px 2px 3px rgb(0, 0, 0);
-    position:relative;
-    margin-left: auto;
-    margin-right: auto;
+    grid-area: milestone_upgrades;
 }
 .milestone_button {
     border-width: 5px;
@@ -62,8 +149,8 @@
     margin-left: 5px;
     color: #353535;
     text-shadow: 1px 1px 1px #000;
-    height: 70px;
-    width: 102px
+    height: 109px;
+    width: 109px
 }
 .hoverable {
     display: none;
@@ -88,7 +175,7 @@
     text-align:center;
 }
 .particle_shop_button:hover + .hoverable {
-    transform: translate(-50%, -50%);
+    transform: translate(0%, -50%);
     display: block;
     position: fixed;
     padding-bottom: 15px;
@@ -100,12 +187,11 @@
     min-width: 20px;
     height: 29px;
     background:rgb(155, 155, 155);
-    margin-left: 0px;
-    margin-right: 0px;
     border-width: 4px;
     border-color: rgb(116, 116, 116);
     border-style: ridge;
     z-index: 1;
+    white-space: nowrap;
 }
 .img {
     position:absolute;

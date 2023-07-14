@@ -97,6 +97,7 @@ const milestoneFunctions = {
 var resources = {
     mass: 0,
     velocity: 0,
+    lightspeed: 299792458,
     alpha: 0,
     beta: 0,
     gamma: 0,
@@ -167,6 +168,8 @@ window.onload = function() {
     initializeParticleShopHTML()
     initializeMilestoneHTML()
 
+    displayLightspeed()
+
     const clickableElements = document.getElementsByClassName("clickable")
 
     for (var i = 0; i < clickableElements.length; i++) {
@@ -204,13 +207,20 @@ function numberUpdates(deltaTime) {
 function updateDisplayBoard(deltaTime) {
     let removeAfter = []
 
+    var cData = mainParticle.getBoundingClientRect()
+
+    var x1 = 100*(cData.x+12)/displayData.width.replace("px", "")
+    var y1 = 100*((cData.y+25)-display.offsetTop)/displayData.height.replace("px", "")
+
     for (var i = 0; i < particlesToCollide.length; i++) {
         var particle = particlesToCollide[i]
-        
-        var x0 = parseFloat(particle.style.left.replace("%", ""))
-        var y0 = parseFloat(particle.style.top.replace("%", ""))
 
-        var vect = {x: 50 - x0, y: 50 - y0}
+        var box = particle.getBoundingClientRect()
+        
+        var x0 = 100 * box.x / displayData.width.replace("px", "")
+        var y0 = 100 * (box.y-display.offsetTop)/displayData.height.replace("px", "")
+
+        var vect = {x: x1 - x0, y: y1 - y0}
         var mag = Math.sqrt(vect.x * vect.x + vect.y * vect.y)
 
         if (mag <= 1) {
@@ -220,8 +230,8 @@ function updateDisplayBoard(deltaTime) {
             vect.x *= collisionSpeed/mag
             vect.y *= collisionSpeed/mag
 
-            particle.style.left = (100*vect.x * deltaTime/displayData.width.replace("px", "") + x0) + "%"
-            particle.style.top = (100*vect.y * deltaTime/displayData.height.replace("px", "") + y0) + "%"
+            particle.style.left = 100*(vect.x * deltaTime)/displayData.width.replace("px", "") + parseFloat(particle.style.left.replace("%", "")) + "%"
+            particle.style.top = 100*(vect.y * deltaTime)/displayData.height.replace("px", "") + parseFloat(particle.style.top.replace("%", "")) + "%"
 
             if (x0 > 0 && x0 < 100 && y0 > 0 && y0 < 100-100*particle.style.height.replace("px", "")/displayData.height.replace("px", "")) {
                 particle.hidden = false;
@@ -238,18 +248,18 @@ function updateDisplayBoard(deltaTime) {
 
     createParticlesIfAvailable()
 
-    var diff = 100*getComputedStyle(mainParticle).width.replace("px", "")/displayData.width.replace("px", "")
+    var diff = 100*getComputedStyle(mainParticle).width.replace("px", "")/Math.min(displayData.width.replace("px", ""),displayData.height.replace("px", ""))
 
     for (var i = 0; i < particlesToDrift.length; i++) {
-        var particle = particlesToDrift[i]
+        var particle = particlesToDrift[i] 
 
         var x0 = parseFloat(particle.style.left.replace("%", ""))
         var y0 = parseFloat(particle.style.top.replace("%", ""))
 
-        var vect = {x: 50 - x0, y: 50 - y0}
+        var vect = {x: x1 - x0, y: y1 - y0}
         var mag = Math.sqrt(vect.x * vect.x + vect.y * vect.y)
 
-        if (y0 <= 50 + diff && y0 >= 50 - diff && x0 <= 50) {
+        if (y0 <= y1 + diff/2 && y0 >= y1 - diff/2 && x0 <= 50) {
             removeAfter.push(particle)
             resources.mass += particle.mass
             console.log(particle.mass)
@@ -285,7 +295,6 @@ function initializeParticleShopHTML() {
 
     for (var i = 0; i < allParticles.length; i++) {
         let name = allParticles[i]
-        let data = particleData[name]
 
         let button = document.createElement("button")
 
@@ -293,6 +302,8 @@ function initializeParticleShopHTML() {
         button.className = "clickable particle_shop_button"
 
         button.addEventListener("mousemove", hoverParticleShopEvent)
+        button.addEventListener("mouseover", hoverParticleShopEvent)
+        button.addEventListener("scroll", hoverParticleShopEvent)
 
         container.appendChild(button)
 
@@ -357,6 +368,10 @@ function initializeMilestoneHTML() {
 
 function draw() {
 
+}
+
+function displayLightspeed() {
+    document.getElementById("c").innerHTML = "c = " + resources.lightspeed.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " m/s"
 }
 
 function onClick(event) {
@@ -437,7 +452,7 @@ function unlockMilestones(resource) {
             var prereqs = data.prereqs
             
             for (var r = 0; r < prereqs.length; r++)
-                if (!milestoneData[prereqs[i]].bought)
+                if (!milestoneData[prereqs[r]].bought)
                     continue prereqMet
 
             let elm = document.getElementById(name)
@@ -482,7 +497,7 @@ function updateButtonText() {
 }
 
 function createManualParticle(color, size, mass) {
-    let div = document.createElement('div');
+    /*let div = document.createElement('div');
 
     var angle = Math.round(Math.random() * 100);
     var side = Math.random() > 0.5
@@ -498,6 +513,38 @@ function createManualParticle(color, size, mass) {
     div.hidden = true;
     div.mass = mass
     
+    return div*/
+
+    let div = document.createElement('div');
+
+    /*
+
+    div.style.position = "relative"
+    //div.style.top = side ? (-Math.ceil(100*size/getComputedStyle(display).height.replace("px", ""))) + "%" : "100%"
+    //div.style.left = (angle-2*size/getComputedStyle(display).width.replace("px", ""))+"%"
+    div.style.top = "50%"
+    div.style.left = "50%"
+    div.style.width = size + "px"
+    div.style.height = size + "px"
+    div.style.borderRadius = "50%"
+    div.style.backgroundColor = color
+    div.style.boxShadow = "0 0 " + size + "px " + (size/5) + "px " + color
+    div.hidden = true;
+    div.mass = mass
+    div.style.zIndex = 2;*/
+
+    var angle = Math.round(Math.random() * 100);
+
+    div.style.top = (-Math.ceil(100*size/getComputedStyle(display).height.replace("px", ""))) + "%"
+    div.style.left = (angle-2*size/getComputedStyle(display).width.replace("px", ""))+"%"
+    div.style.width = size + "px"
+    div.style.height = size + "px"
+    div.mass = mass
+    div.style.backgroundColor = color
+    div.style.boxShadow = "0 0 " + size + "px " + (size/5) + "px " + color
+
+    div.className = "particle"
+    
     return div
 }
 
@@ -506,16 +553,16 @@ function createParticle(color, size, mass) {
 
     var angle = Math.round(Math.random() * 100);
 
-    div.style.position = "absolute"
     div.style.left = "100%"
     div.style.top = (angle-2*size/getComputedStyle(display).height.replace("px", ""))+"%"
     div.style.width = size + "px"
     div.style.height = size + "px"
-    div.style.borderRadius = "50%"
     div.style.backgroundColor = color
     div.style.boxShadow = "0 0 " + size + "px " + (size/5) + "px " + color
     div.hidden = true;
     div.mass = mass
+
+    div.className = "particle"
     
     return div
 }
@@ -624,7 +671,7 @@ function hoverParticleShopEvent(e){
 
     nodes[1].innerHTML = particleData[allParticles[i]].mass + " kg"
 
-    var left  = e.currentTarget.getBoundingClientRect().x - 30 - nodes[1].getBoundingClientRect().width/2 + "px"
+    var left  = e.currentTarget.getBoundingClientRect().x + e.currentTarget.getBoundingClientRect().width + 5+ "px"
     var top  = e.clientY  + "px";
 
     div.style.left = left;

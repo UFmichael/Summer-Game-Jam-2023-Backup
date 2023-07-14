@@ -501,7 +501,7 @@ function createManualParticle(color, size, mass) {
 
     var angle = Math.round(Math.random() * 100);
 
-    div.style.top = (-Math.ceil(100*size/getComputedStyle(display).height.replace("px", ""))) + "%"
+    div.style.top = (Math.random() < 0.5) ? (-Math.ceil(100*size/getComputedStyle(display).height.replace("px", ""))) + "%" : "100%"
     div.style.left = (angle-2*size/getComputedStyle(display).width.replace("px", ""))+"%"
     div.style.width = size + "px"
     div.style.height = size + "px"

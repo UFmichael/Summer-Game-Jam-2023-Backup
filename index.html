@@ -1,107 +1,17 @@
 <!DOCTYPE html>
 <html>
-    <style>
-        .particle_display {
-            height:400px;
-            width:700px;
-            background:rgb(0, 0, 0);
-            position:relative;
-            margin-left: auto;
-            margin-right: auto;
-            border-radius: 5px;
-        }
-        .dot {
-            transform-origin: top left;
-            transform: translate(-50%, -50%);
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            background-color: #ffffff;
-            border-radius: 50%;
-            box-shadow: 0 0 25px 5px #fff;
-            z-index: 1;
-        }
-        .particle_shop_button {
-            border: 0;
-            line-height: 2.5;
-            padding: 0 20px;
-            font-size: 1rem;
-            text-align: center;
-            line-height: 20px;
-            float: right;
-            color: #474747;
-            text-shadow: 1px 1px 1px #000;
-            border-radius: 4px;
-            box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.6), inset -2px -2px;
-            height: 70px;
-            width: 200px;
-            transform-origin: 100;
-        }
-        .milestone_button {
-            border-width: 5px;
-            border-color: #ffc400;
-            border-style: groove;
-            line-height: 1;
-            position:relative;
-            padding: 2px 20px;
-            font-size: 0.8em;
-            text-align: center;
-            line-height: 20px;
-            float: left;
-            margin-top: 5px;
-            margin-left: 5px;
-            color: #353535;
-            text-shadow: 1px 1px 1px #000;
-            height: 70px;
-            width: 102px
-        }
-        .milestone_hoverable {
-            display: none;
-        }
-        .milestone_button:hover + .milestone_hoverable {
-            transform: translate(-50%, -120%);
-            display: block;
-            position: fixed;
-            padding-bottom: 15px;
-            width:200px;
-            background:rgb(155, 155, 155);
-            margin-left: 0px;
-            margin-right: 0px;
-            border-width: 4px;
-            border-color: rgb(116, 116, 116);
-            border-style: ridge;
-            z-index: 1;
-            text-align:center;
-        }
-        .img {
-            position:absolute;
-            top: 50%;
-            left:50%;
-            -webkit-transform: translate(-50%, -50%);
-            -ms-transform: translate(-50%, -50%);
-            transform: translate(-50%, -50%);
-        }
-    </style>
-    <head></head>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <script type="text/javascript" src="main.js"></script>
+    </head>
     <body>
         <div id="particle_display" class="particle_display">
             <div id="main_particle" class="clickable dot" style="height: 25px; width: 25px;"></div>
         </div>
-        <div id="milestone_upgrades" style="overflow:auto;width:650px;height:80px;margin-top: 5px;background-color: hwb(34 38% 25%);border:8px solid hwb(34 26% 41%);box-shadow: 2px 2px 3px rgb(0, 0, 0);position:relative;margin-left: auto;margin-right: auto;">
-            <button id="vel1" hidden=true class="clickable milestone_button" onmousemove="hoverdiv(event)"><img src="tempimg.png" width=60px height=auto class="img"></button>
-            <div id="vel1_" class="milestone_hoverable"><img src="tempimg.png" width=60px height=auto><br><b>Give it a little nudge</b><br><br>Increase velocity by 1 m/s<br><br></div>
-
-            <button id="alpha1" hidden=true class="clickable milestone_button" onmousemove="hoverdiv(event)"><img src="tempimg2.png" width=60px height=auto class="img"></button>
-            <div id="alpha1_" class="milestone_hoverable"><img src="tempimg2.png" width=60px height=auto><br><b>A worthy sacrifice</b><br><br>Double the mass of alpha particles<br><br></div>
-        </div>
-        <!-- It's up to y'all to make all this look good -->
+        <div id="milestone_upgrades"></div>
         <h3 id="mass"></h3>
         <h3 id="velocity"></h3>
         <h3 id="energy"></h3>
-        <button id="particle_upgrade1" class="clickable particle_shop_button"></button>
-        <button id="particle_upgrade2" style="margin-left: 100%;" class="clickable particle_shop_button"></button>
-        <button id="particle_upgrade3" class="clickable particle_shop_button"></button>
-        <button id="particle_upgrade4" style="margin-left: 100%;" class="clickable particle_shop_button"></button>
+        <div id="particle_shop"></div>
     </body>
-    <script type="text/javascript" src="main.js"></script>
 </html>

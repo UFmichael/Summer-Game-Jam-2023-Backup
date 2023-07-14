@@ -1,0 +1,128 @@
+.particle_display {
+    height:400px;
+    width:700px;
+    background:rgb(0, 0, 0);
+    position:relative;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 5px;
+}
+.dot {
+    transform-origin: top left;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 25px 5px #fff;
+    z-index: 1;
+}
+.particle_shop_button {
+    border: 0;
+    line-height: 2.5;
+    padding: 0 20px;
+    font-size: 1rem;
+    text-align: center;
+    line-height: 20px;
+    margin-left: 100%;
+    float: right;
+    color: #474747;
+    text-shadow: 1px 1px 1px #000;
+    border-radius: 4px;
+    box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.6), inset -2px -2px;
+    height: 70px;
+    width: 200px;
+    transform-origin: 100;
+}
+#milestone_upgrades {
+    overflow:auto;
+    width:650px;
+    height:80px;
+    margin-top: 5px;
+    background-color: hwb(34 38% 25%);
+    border:8px solid hwb(34 26% 41%);
+    box-shadow: 2px 2px 3px rgb(0, 0, 0);
+    position:relative;
+    margin-left: auto;
+    margin-right: auto;
+}
+.milestone_button {
+    border-width: 5px;
+    border-color: #ffc400;
+    border-style: groove;
+    line-height: 1;
+    position:relative;
+    padding: 2px 20px;
+    font-size: 0.8em;
+    text-align: center;
+    line-height: 20px;
+    float: left;
+    margin-top: 5px;
+    margin-left: 5px;
+    color: #353535;
+    text-shadow: 1px 1px 1px #000;
+    height: 70px;
+    width: 102px
+}
+.hoverable {
+    display: none;
+}
+.milestone_button:hover + .hoverable {
+    transform: translate(-50%, -120%);
+    display: block;
+    position: fixed;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    word-break: break-all;
+    max-width:350px;
+    min-width:170px;
+    background:rgb(155, 155, 155);
+    margin-left: 0px;
+    margin-right: 0px;
+    border-width: 4px;
+    border-color: rgb(116, 116, 116);
+    border-style: ridge;
+    z-index: 1;
+    text-align:center;
+}
+.particle_shop_button:hover + .hoverable {
+    transform: translate(-50%, -50%);
+    display: block;
+    position: fixed;
+    padding-bottom: 15px;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    word-break: break-all;
+    max-width:350px;
+    min-width: 20px;
+    height: 29px;
+    background:rgb(155, 155, 155);
+    margin-left: 0px;
+    margin-right: 0px;
+    border-width: 4px;
+    border-color: rgb(116, 116, 116);
+    border-style: ridge;
+    z-index: 1;
+}
+.img {
+    position:absolute;
+    top: 50%;
+    left:50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.static_particle {
+    transform-origin: top left;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    border-radius: 50%;
+    float: top;
+}
+.p_shop_hover_text {
+    padding-top: 20px;
+}

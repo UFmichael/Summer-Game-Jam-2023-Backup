@@ -38,6 +38,7 @@
   .resources { grid-area: resources; 
     background-color: #545894;
     border: 8px groove #484b81;
+    min-width: 3vw;
 }
   
   .energy_display { grid-area: energy_display; 
@@ -75,15 +76,14 @@
   }
 
   html {
-    min-width: 1920px;
-    min-height: 1080px;
+    min-width: 680px;
+    min-height: 440px;
   }
 
 #particle_display {
     background:rgb(0, 0, 0);
     border-radius: 5px;
     grid-area: particle_display;
-    width: 670px;
 }
 #energy_display {
     height:200px;
@@ -122,7 +122,7 @@
     margin-left: 0%;
     color: #474747;
     text-shadow: 1px 1px 1px #000;
-    min-height: 150px;
+    min-height: 125px;
     border-radius: 4px;
     box-shadow: inset 2px 2px 3px rgba(255, 255, 255, 0.6), inset -2px -2px;
     transform-origin: 100;
@@ -149,8 +149,8 @@
     margin-left: 5px;
     color: #353535;
     text-shadow: 1px 1px 1px #000;
-    height: 109px;
-    width: 109px
+    height:90%;
+    width:18%;
 }
 .hoverable {
     display: none;

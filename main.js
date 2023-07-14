@@ -497,41 +497,7 @@ function updateButtonText() {
 }
 
 function createManualParticle(color, size, mass) {
-    /*let div = document.createElement('div');
-
-    var angle = Math.round(Math.random() * 100);
-    var side = Math.random() > 0.5
-
-    div.style.position = "absolute"
-    div.style.left = side ? (-Math.ceil(100*size/getComputedStyle(display).width.replace("px", ""))) + "%" : "100%"
-    div.style.top = (angle-2*size/getComputedStyle(display).height.replace("px", ""))+"%"
-    div.style.width = size + "px"
-    div.style.height = size + "px"
-    div.style.borderRadius = "50%"
-    div.style.backgroundColor = color
-    div.style.boxShadow = "0 0 " + size + "px " + (size/5) + "px " + color
-    div.hidden = true;
-    div.mass = mass
-    
-    return div*/
-
     let div = document.createElement('div');
-
-    /*
-
-    div.style.position = "relative"
-    //div.style.top = side ? (-Math.ceil(100*size/getComputedStyle(display).height.replace("px", ""))) + "%" : "100%"
-    //div.style.left = (angle-2*size/getComputedStyle(display).width.replace("px", ""))+"%"
-    div.style.top = "50%"
-    div.style.left = "50%"
-    div.style.width = size + "px"
-    div.style.height = size + "px"
-    div.style.borderRadius = "50%"
-    div.style.backgroundColor = color
-    div.style.boxShadow = "0 0 " + size + "px " + (size/5) + "px " + color
-    div.hidden = true;
-    div.mass = mass
-    div.style.zIndex = 2;*/
 
     var angle = Math.round(Math.random() * 100);
 

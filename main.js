@@ -7,6 +7,8 @@ var collisionSpeed = 500
 var mainParticleSize = 25
 var clickParticleMass = 1
 
+var particleCap = 35
+
 var mass_doc, energy_doc, velocity_doc
 
 var particleData = {
@@ -29,11 +31,29 @@ var particleData = {
         symbol: "γ",
     },
     delta: {
-        color: " #a6ff00",
+        color: "#a6ff00",
         size: 16,
         mass: 100,
         symbol: "δ",
-    }
+    },
+    epsilon: {
+        color: "#85fbff",
+        size: 17,
+        mass: 500,
+        symbol: "ε",
+    },
+    zeta: {
+        color: "#5c1100",
+        size: 8,
+        mass: 2000,
+        symbol: "ζ",
+    },
+    eta: {
+        color: "#bf00ff",
+        size: 14,
+        mass: 10000,
+        symbol: "η",
+    },
 }
 
 var milestoneData = {
@@ -52,7 +72,7 @@ var milestoneData = {
     alpha1: {
         bought: false,
         cost: 35,
-        unlockCost: 10,
+        unlockCost: 1,
         unit: "Alpha Particles",
         resource: "alpha",
         title: "A worthy sacrifice",
@@ -89,7 +109,7 @@ var milestoneData = {
 
 const milestoneFunctions = {
     vel1: () => resources.velocity++,
-    alpha1: () => particleData.alpha.mass *= 2,
+    alpha1: () => { particleData.alpha.mass *= 2; removeAllParticles("alpha"); costs.alpha = costFunc.alpha()},
     click1: () => clickParticleMass *= 2,
     vel2: () => resources.velocity++,
 }
@@ -102,6 +122,9 @@ var resources = {
     beta: 0,
     gamma: 0,
     delta: 0,
+    epsilon: 0,
+    zeta: 0,
+    eta: 0,
 }
 
 var activeParticles = {
@@ -109,24 +132,29 @@ var activeParticles = {
     beta: 0,
     gamma: 0,
     delta: 0,
+    epsilon: 0,
+    zeta: 0,
+    eta: 0,
 }
 
-var costQuant = {
-    u1: 0,
-    u2: 0,
-    u3: 0,
-    u4: 0,
+var costFunc = {
+    alpha: () => 10 * Math.pow(1.1, resources.alpha),
+    beta: () => 80 * Math.pow(1.12, resources.beta),
+    gamma: () => 200 * Math.pow(1.15, resources.gamma),
+    delta: () => 1000 * Math.pow(1.19, resources.delta),
+    epsilon: () => 5000 * Math.pow(1.24, resources.epsilon),
+    zeta: () => 25000 * Math.pow(1.3, resources.zeta),
+    eta: () => 100000 * Math.pow(1.37, resources.eta),
 }
 
-var costData = {
-    _u1: () => 10 * Math.pow(1.1, costQuant.u1),
-    u1: 10,
-    _u2: () => 80 * Math.pow(1.12, costQuant.u2),
-    u2: 80,
-    _u3: () => 200 * Math.pow(1.15, costQuant.u3),
-    u3: 200,
-    _u4: () => 1000 * Math.pow(1.19, costQuant.u4),
-    u4: 1000,
+var costs = {
+    alpha: costFunc.alpha(),
+    beta: costFunc.beta(),
+    gamma: costFunc.gamma(),
+    delta: costFunc.delta(),
+    epsilon: costFunc.epsilon(),
+    zeta: costFunc.zeta(),
+    eta: costFunc.eta(),
 }
 
 var kineticEnergy = (mass=resources.mass, velocity=resources.velocity) => 0.5 * mass * velocity * velocity;
@@ -262,12 +290,11 @@ function updateDisplayBoard(deltaTime) {
         if (y0 <= y1 + diff/2 && y0 >= y1 - diff/2 && x0 <= 50) {
             removeAfter.push(particle)
             resources.mass += particle.mass
-            console.log(particle.mass)
         } else if (x0 < 0) {
             removeAfter.push(particle)
         } else {
-            while (particle.velocity/0.95 < resources.velocity) {
-                particle.velocity += 1
+            if (particle.velocity/0.93 < resources.velocity) {
+                particle.velocity = resources.velocity * (0.93 + 14*Math.random()/100)
             }
             
             particle.style.left = (-50*collisionSpeed*particle.velocity * deltaTime/displayData.width.replace("px", "") + x0) + "%"
@@ -294,8 +321,6 @@ function initializeParticleShopHTML() {
     let container = document.getElementById("particle_shop")
 
     for (var i = 0; i < allParticles.length; i++) {
-        let name = allParticles[i]
-
         let button = document.createElement("button")
 
         button.id = "particle_upgrade" + (i+1)
@@ -386,17 +411,17 @@ function onClick(event) {
         particlesToCollide.push(part)
     } else if (id.slice(0, 16) == "particle_upgrade") {
         let names = allParticles
-        let costs = Object.values(costData)
 
         let i = parseInt(id.slice(16))-1
-        
-        if (energy(resources.mass, resources.velocity) >= costs[2*i+1]) {
-            resources.mass -= invKineticEnergy(costs[2*i+1], resources.velocity)
-            resources[names[i]]++
-            costQuant["u" + (i+1)]++
-            costData["u" + (i+1)] = costData["_u" + (i+1)]()
 
-            unlockMilestones(names[i])
+        let name = names[i]
+        
+        if (energy(resources.mass, resources.velocity) >= costs[name] && resources[name] < particleCap) {
+            resources.mass -= invKineticEnergy(costs[name], resources.velocity)
+            resources[name]++
+            costs[name] = costFunc[name]()
+
+            unlockMilestones(name)
         }
     } else if (cls[1] == "milestone_button") {
         milestoneUpgrade(id)
@@ -479,20 +504,19 @@ function updateMilestoneDisplay(elm) {
 function updateButtonText() {
     let updateMassCost = true
     let massCost = "∞"
-    let costs = Object.values(costData)
 
     if (resources.velocity == 0)
         updateMassCost = false
     
     for (var i = 0; i < allParticles.length; i++) {
-        let cost = numDisplay(costs[2*i+1])
         let name = allParticles[i]
-
+        let cost = numDisplay(costs[name])
+    
         if (updateMassCost) {
             massCost = numDisplay(invKineticEnergy(cost, resources.velocity))
         }
 
-        document.getElementById("particle_upgrade" + (i+1)).innerHTML = name.charAt(0).toUpperCase() + name.slice(1) + " Particles<br>("+resources[name]+")<br>" +cost+ " J / " + massCost + " kg"
+        document.getElementById("particle_upgrade" + (i+1)).innerHTML = name.charAt(0).toUpperCase() + name.slice(1) + " Particles<br>("+resources[name]+")<br>Cap: " + particleCap + "<br>" +cost+ " J / " + massCost + " kg"
     }
 }
 
@@ -557,7 +581,7 @@ function createParticlesIfAvailable() {
         for (var i = 0; i < min; i++) {
             var part = createParticle(data.color, data.size, data.mass)
 
-            part.velocity = resources.velocity * (0.95 + Math.random()/10)
+            part.velocity = resources.velocity * (0.93 + 14*Math.random()/100)
             part.name = name
 
             display.appendChild(part)
@@ -566,6 +590,20 @@ function createParticlesIfAvailable() {
         }
 
         activeParticles[name] += min
+    }
+}
+
+function removeAllParticles(name) {
+    let removeAfter = []
+
+    for (var i = 0; i < particlesToDrift.length; i++)
+        if (particlesToDrift[i].name == name)
+            removeAfter.push(particlesToDrift[i])
+    
+    for (var i = 0; i < removeAfter.length; i++) {
+        var del = particlesToDrift.splice(particlesToDrift.indexOf(removeAfter[i]), 1)
+        activeParticles[del[0].name]--
+        discardElement(del[0])
     }
 }
 

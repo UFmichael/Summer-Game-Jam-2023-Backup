@@ -11,16 +11,14 @@
       "title resources resources energy_display energy_display"
       "particle_display resources resources energy_display energy_display"
       "particle_display particle_shop milestone_upgrades milestone_upgrades settings"
-      "particle_display particle_shop relativity relativity settings"
+      "particle_display particle_shop relativity relativity prestige1"
       "b_border b_border b_border b_border b_border";
   }
   
   #c { grid-area: c; 
     background-color: #b8c78e;
     border: 8px groove #869167;
-    display: flex;
     align-items: center;
-    justify-content: center;
     font-size: 4vmin; 
     font-family:'Courier New', Courier, monospace;
 }
@@ -36,20 +34,109 @@
 }
   
   .resources { grid-area: resources; 
-    background-color: #545894;
-    border: 8px groove #484b81;
-    min-width: 3vw;
+    background-color: #17a57a;
+    border: 8px groove #0f644b;
+    /* min-width: 3vw; */
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3vmin; 
+    font-family:'Courier New', Courier, monospace;
+    position: relative;
+    text-align: center;
+
+    display: grid;
+    grid-template-rows: 0.3fr 0.7fr;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    grid-auto-flow: column;
+    grid-template-areas:
+      ". formula ."
+      "energy_p energy_p energy_p";
+}
+
+#energy { grid-area: energy_p
+
+}
+
+#energyform { grid-area: formula;
+  background-color: #17a53a;
+    border: 8px groove #107429;
 }
   
   .energy_display { grid-area: energy_display; 
-    background-color: #545894;
-    border: 8px groove #484b81;
-}
-  
+    position: relative;
+    background-color: #17a59e;
+    border: 8px groove #107a75;
+    align-items: left;
+    line-height: 1.7vmin;
+    font-size: 1.7vmin; 
+    overflow-y: scroll;
+    font-family:'Courier New', Courier, monospace;
+    padding-left: 1%;
+
+    display: grid;
+    grid-auto-columns: 1fr;
+    column-gap: 5%;
+    grid-auto-rows: 1fr;
+    grid-auto-flow: row;
+    grid-template-areas:
+      ". . .";
+  }
+
+  #relTitle {
+    font-size: 3.5cqmin;
+  }
+
+  .relSubtitle {
+    font-size: 2cqmin;
+  }
+
+  #relativityData {
+    grid-area: relativity; 
+    position: relative;
+    align-items: center;
+    justify-items: center;
+    text-align: center;
+    line-height: 2vmin;
+    font-family:'Courier New', Courier, monospace;
+
+    display: grid;
+    width:100%;
+    height:100%;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    grid-auto-flow: column;
+    grid-template-areas:
+      "."
+      "."
+      "."
+      ".";
+  }
+  #lockedRelativity {
+    grid-area: relativity; 
+    position: relative;
+    align-items: center;
+    justify-items: center;
+    text-align: center;
+    line-height: 4vmin;
+    font-family:'Courier New', Courier, monospace;
+    font-size: 4vmin;
+    top: 50%;
+    -ms-transform: translateY(-75%);
+    transform: translateY(-75%);
+  }
   .settings { grid-area: settings; 
-    background-color: #545894;
-    border: 8px groove #484b81;
+    background-color: #505050;
+    border: 8px groove #363636;
 }
+
+  #prestige1 { grid-area: prestige1; 
+    background-color: #a81919;
+    border: 8px groove #6b0f0f;
+    overflow-y: scroll;
+  }
   
   #particle_shop { grid-area: particle_shop; 
     background-color: #545894;
@@ -64,12 +151,14 @@
     border: 8px groove #943017;
 }
   
-  .b_border { grid-area: b_border; 
-    background-color: #545894;
-    border: 8px groove #484b81;
+  #b_border { grid-area: b_border; 
+    background-color: #547094;
+    border: 8px groove #3d526d;
+    display:block;
+    overflow-y: scroll;
 }
 
-  html, body , .container {
+  html, body , .container, #final {
     height: 100%;
     margin: 0;
     background-color:#111529;
@@ -81,11 +170,22 @@
   }
 
 #particle_display {
-    background:rgb(0, 0, 0);
+    width: 100%;
+    height: 100%;
     border-radius: 5px;
     grid-area: particle_display;
+    justify-self: center;
+}
+#canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background:rgb(0, 0, 0);
 }
 #energy_display {
+    display: block;
+    position:fixed;
+    border-style:solid;
     height:200px;
     width:500px;
     background:rgb(0, 0, 0);
@@ -95,7 +195,6 @@
     display:inline-block;
 }
 .dot {
-    transform-origin: top left;
     transform: translate(-50%, -50%);
     left: 50%;
     top: 50%;
@@ -103,7 +202,12 @@
     border-radius: 50%;
     box-shadow: 0 0 25px 5px #fff;
     z-index: 1;
-    position: relative;
+    position: absolute;
+    grid-area: particle_display;
+    -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .particle {
     transform-origin: top left;
@@ -136,7 +240,7 @@
 }
 .milestone_button {
     border-width: 5px;
-    border-color: #ffc400;
+    border-color: #ffc40060;
     border-style: groove;
     line-height: 1;
     position:relative;
@@ -162,7 +266,6 @@
     padding-bottom: 15px;
     padding-left: 15px;
     padding-right: 15px;
-    word-break: break-all;
     max-width:350px;
     min-width:170px;
     background:rgb(155, 155, 155);
@@ -173,6 +276,80 @@
     border-style: ridge;
     z-index: 1;
     text-align:center;
+}
+.prestige_button { grid-area: prestige1;
+  border-width: 5px;
+    border-color: #ffc40060;
+    border-style: groove;
+    position:relative;
+    font-size: 0.8em;
+    text-align: center;
+    line-height: 20px;
+    float: center;
+    justify-content: center;
+    display: flex;
+    margin-top: 3.3%;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+    color: #353535;
+    text-shadow: 1px 1px 1px #000;
+    height:31%;
+    width:90%;
+}
+.prestige_button:hover + .hoverable {
+  transform: translate(-50%, -120%);
+  display: block;
+  position: fixed;
+  padding-bottom: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  max-width:350px;
+  min-width:170px;
+  background:rgb(155, 155, 155);
+  margin-left: 0px;
+  margin-right: 0px;
+  border-width: 4px;
+  border-color: rgb(116, 116, 116);
+  border-style: ridge;
+  z-index: 1;
+  text-align:center;
+}
+.prestige2_button { grid-area: border_b;
+  border-width: 5px;
+    border-color: #ffc40060;
+    border-style: groove;
+    line-height: 1;
+    position:relative;
+    padding: 2px 20px;
+    font-size: 0.8em;
+    text-align: center;
+    line-height: 20px;
+    float: left;
+    margin-top: 5px;
+    margin-left: 1vmin;
+    color: #353535;
+    text-shadow: 1px 1px 1px #000;
+    height:90%;
+    width: 19%;
+}
+.prestige2_button:hover + .hoverable {
+  transform: translate(-50%, -120%);
+  display: block;
+  position: fixed;
+  padding-bottom: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  max-width:350px;
+  min-width:170px;
+  background:rgb(155, 155, 155);
+  margin-left: 0px;
+  margin-right: 0px;
+  border-width: 4px;
+  border-color: rgb(116, 116, 116);
+  border-style: ridge;
+  z-index: 1;
+  text-align:center;
 }
 .particle_shop_button:hover + .hoverable {
     transform: translate(0%, -50%);
@@ -211,4 +388,47 @@
 }
 .p_shop_hover_text {
     padding-top: 20px;
+}
+#final {
+  position: relative;
+  background-color: #3f82c2;
+    text-align: center;
+    line-height: 4vmin;
+    font-size: 4vmin;
+    font-family:'Courier New', Courier, monospace;
+    
+    display: grid;
+    width:100%;
+    height:100%;
+    grid-template-columns: 1fr 8fr 1fr;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    grid-auto-flow: column;
+    grid-template-areas:
+      "grid1 grid1 grid1"
+      "grid2 grid2 grid2"
+      "grid3 grid3 grid3"
+      ". grid4 .";
+}
+#finalTitle { grid-area: grid1;
+  padding: 5vmin;
+  white-space: normal;
+}
+#finalDesc {grid-area: grid2;
+  padding: 5vmin;
+  white-space: normal;
+}
+#finalInfo {grid-area: grid3;
+  padding: 5vmin;
+  white-space: normal;
+}
+#finalButton {grid-area: grid4;
+  height:80%;
+  width:100%;
+  padding: 2vmin;
+  font-size: 4vmin;
+  border-radius: 1px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #000;
 }

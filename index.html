@@ -5,23 +5,45 @@
         <script type="text/javascript" src="main.js"></script>
     </head>
     <body>
-        <div class="container">
-            <div id="c">c = 299,792,458 m/s</div>
-                     <div class="title">Energy Acuumulator Test</div>
+        <div id="main" class="container">
+            <div id="c"></div>
+            <div class="title">Project Lightspeed</div>
             <div class="resources">
+                <h3 id="energyform"></h3>
                 <h3 id="energy"></h3>
             </div>
             <div id="particle_display">
                 <div id="main_particle" class="clickable dot" style="height: 25px; width: 25px;"></div>
+                <canvas id="canvas"></canvas>
             </div>
             <div class="energy_display">
-                <h3 id="mass"></h3>
-                <h3 id="velocity"></h3>
+                <pre id="mass"></pre>
+                <pre id="velocity"></pre>
+                <pre id="time"></pre>
+                <pre id="mvengine"></pre>
+                <pre id="blackholes"></pre>
+                <pre id="lp"></pre>
             </div>
             <div id="milestone_upgrades"></div>
             <div class="settings"></div>
+            <div id="prestige1"></div>
             <div id="particle_shop"></div>
-            <div class="relativity"></div>
-            <div class="b_border">
-body>
+            <div class="relativity">
+                <div id="lockedRelativity"></div>
+                <div id="relativityData" style="display:none">
+                    <pre id="relTitle">Relativity</pre>
+                    <pre id="lorentz" class="relSubtitle"></pre>
+                    <pre id="timeDilation" class="relSubtitle"></pre>
+                    <pre id="lengthContraction" class="relSubtitle"></pre>
+                </div>
+            </div>
+            <div id="b_border"></div>
+        </div>
+        <div id="final" style="display: none">
+            <pre id="finalTitle">You have reached the speed of light</pre>
+            <pre id="finalDesc">In this realm between worlds, you spot a universe far grander than the one you just left</pre>
+            <pre id="finalInfo">You will lose everything, but the speed of light is doubled</pre>
+            <button id="finalButton" onclick="onLightspeedReset()"></button>
+        </div>
+    </body>
 </html>
